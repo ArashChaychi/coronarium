@@ -6,9 +6,11 @@ const App = () => {
 
     const [dataLoaded, setDataLoaded] = useState(() => false);
     const [countryData, setCountryData] = useState(() => null);
+    const [months, setMonths] = useState(() => []);
 
     console.log(dataLoaded);
     console.log(countryData);
+    console.log(months);
 
     useEffect(() => {
         const firstDay = new Date(2020, 0, 22);
@@ -25,8 +27,9 @@ const App = () => {
         ).then(([historicalData, allCountries]) => {
             const worker = new Worker('./dataAdapter.js');
             worker.postMessage(JSON.parse(JSON.stringify({historicalData, allCountries, firstDay, today})));
-            worker.onmessage = ({data}) => {
-                setCountryData(data);
+            worker.onmessage = ({data: {monthsSinceStart, countryData}}) => {
+                setCountryData(countryData);
+                setMonths(monthsSinceStart);
                 setDataLoaded(true);
             };
         });

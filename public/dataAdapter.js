@@ -7,30 +7,85 @@ onmessage = ({data: {historicalData, allCountries, firstDay, today}}) => {
             return acc;
         }, {});
 
-    const result = allCountries
-        .reduce((acc, value) => {
-            const country = value.country;
+    const countryDataAdded = monthsSinceStart
+        .map((item, index, arr) => {
+            const {month, yearShort} = item;
+            const stats = {};
 
-            if (!historicalManifest[country]) return acc;
+            allCountries
+                .forEach((entry => {
+                    const {country, population} = entry;
+                    if (!historicalManifest[country]) return;
 
-            const {iso2, iso3} = value.countryInfo;
-            acc[country] = {
-                iso2,
-                iso3,
-                population: value.population,
-                monthlyStats: getMonthlyStats(monthsSinceStart, historicalManifest[country])
+                    const {iso2, iso3} = entry.countryInfo;
+
+                    if (!iso3 || !iso2) return;
+
+                    const totalCases = getMonthStat(month, yearShort, historicalManifest[country].cases);
+                    const totalDeaths = getMonthStat(month, yearShort, historicalManifest[country].deaths);
+
+                    const newCases = index === 0 ?
+                        totalCases :
+                        totalCases - getMonthStat(arr[index - 1].month, arr[index - 1].yearShort, historicalManifest[country].cases);
+
+                    const newDeaths = index === 0 ?
+                        totalDeaths :
+                        totalDeaths - getMonthStat(arr[index - 1].month, arr[index - 1].yearShort, historicalManifest[country].deaths);
+
+                    stats[country] = {
+                        iso2,
+                        iso3,
+                        population,
+                        totalCases,
+                        totalDeaths,
+                        newCases,
+                        newDeaths,
+                        newCasesPer100k: newCases * 100000 / population,
+                        newDeathsPer100k: newDeaths * 100000 / population,
+                    };
+                }));
+
+            return {
+                ...item,
+                stats
             };
-
-            return acc;
-        }, {});
+        });
 
 
+    const revisedCountryDataAdded = Object
+        .fromEntries(
+            countryDataAdded
+                .map(({monthLabel, stats}) => [monthLabel, stats])
+        );
 
-    postMessage(result);
+
+    // const result = allCountries
+    //     .reduce((acc, value) => {
+    //         const country = value.country;
+    //
+    //         if (!historicalManifest[country]) return acc;
+    //
+    //         const {iso2, iso3} = value.countryInfo;
+    //         acc[country] = {
+    //             iso2,
+    //             iso3,
+    //             population: value.population,
+    //             monthlyStats: getMonthlyStats(monthsSinceStart, historicalManifest[country])
+    //         };
+    //
+    //         return acc;
+    //     }, {});
+
+
+
+    postMessage({
+        monthsSinceStart,
+        countryData: revisedCountryDataAdded
+    });
 };
 
 function getMonthlyStats(monthsSinceStart, timeline) {
-    const result = monthsSinceStart
+    return monthsSinceStart
         .reduce((acc, {monthName, month, monthIndex, year, yearShort}) => {
             const entry = {monthName, month, monthIndex, year, yearShort};
 
@@ -40,12 +95,10 @@ function getMonthlyStats(monthsSinceStart, timeline) {
             acc.push(entry);
             return acc;
         }, []);
-
-    return result;
 }
 
 function getMonthStat(month, yearShort, timelineEntries) {
-    for (let day = 1; day <= 31; day++) {
+    for (let day = 31; day >= 1; day--) {
         const dateStr = `${month}/${day}/${yearShort}`;
         if (timelineEntries[dateStr]) return timelineEntries[dateStr];
     }
@@ -82,11 +135,13 @@ function getMonthsSinceStart(firstDay, today) {
 }
 
 function createMonth(month, year) {
+    const monthName = new Date(year, month).toLocaleString('en-us',{month:'short', year:'numeric'}).substr(0, 3);
     return {
-        monthName: new Date(year, month).toLocaleString('en-us',{month:'short', year:'numeric'}).substr(0, 3),
+        monthName,
         month: month + 1,
         monthIndex: month,
         year: year,
-        yearShort: year % 100
+        yearShort: year % 100,
+        monthLabel: `${monthName} ${year}`
     };
 }
