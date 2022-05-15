@@ -3,7 +3,7 @@ onmessage = ({data: {historicalData, allCountries, firstDay, today}}) => {
 
     const historicalManifest = historicalData
         .reduce((acc, {country, timeline}) => {
-            acc[country] = timeline;
+            if (!acc[country]) acc[country] = timeline;
             return acc;
         }, {});
 
@@ -42,6 +42,8 @@ onmessage = ({data: {historicalData, allCountries, firstDay, today}}) => {
                         newDeaths,
                         newCasesPer100k: newCases * 100000 / population,
                         newDeathsPer100k: newDeaths * 100000 / population,
+                        totalCasesPer100k: totalCases * 100000 / population,
+                        totalDeathsPer100k: totalDeaths * 100000 / population,
                     };
                 }));
 
