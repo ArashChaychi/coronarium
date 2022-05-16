@@ -2,7 +2,7 @@ import WorldMap from 'react-svg-worldmap';
 import { Box } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const Map = ({data, setHeight, getColor, setSelectedCountry}) => {
+const Map = ({data, setHeight, getColor, onSelectCountry}) => {
     const boundingBox = useRef();
 
     const [size, setSize] = useState(() => 800);
@@ -27,7 +27,6 @@ const Map = ({data, setHeight, getColor, setSelectedCountry}) => {
             <WorldMap
                 color="red"
                 tooltipBgColor="#D3D3D3"
-                valueSuffix="points"
                 data={data}
                 size={size}
                 frame
@@ -43,7 +42,7 @@ const Map = ({data, setHeight, getColor, setSelectedCountry}) => {
                         }
                     }
                 }
-                onClickFunction={e => setSelectedCountry(e.countryName)}
+                onClickFunction={e => onSelectCountry(e.countryCode)}
             />
         </Box>
     );

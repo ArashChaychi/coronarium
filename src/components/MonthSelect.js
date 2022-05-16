@@ -2,23 +2,23 @@ import { Box, IconButton, Slider } from '@mui/material';
 import { PauseCircle, PlayCircle, ReplayCircleFilled } from '@mui/icons-material'
 import { useState } from 'react';
 
-const MonthSelect = ({min, max, value, step, setSelectedMonth, marks}) => {
+const MonthSelect = ({min, max, value, step, setSelectedMonth, marks, delay = 1500}) => {
     const [playing, setPlaying] = useState(() => false);
     const [timeoutRef, setTimeoutRef] = useState(() => null);
 
-    const playNext = (value) => {
+    const playNext = (value, nextTickDelay) => {
         const ref = window.setTimeout(() => {
             const nextValue = value + 1;
             setSelectedMonth(nextValue);
-            if (nextValue < max) playNext(nextValue);
+            if (nextValue < max) playNext(nextValue, delay);
             else setPlaying(false);
-        }, 2000)
+        }, nextTickDelay)
         setTimeoutRef(ref);
     };
 
     const onPlay = () => {
         setPlaying(true);
-        playNext(value);
+        playNext(value, 0);
     };
 
     const onPause = () => {

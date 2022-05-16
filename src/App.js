@@ -1,12 +1,13 @@
 import API from './api/API';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import TopBar from './components/TopBar';
-import { Box, Toolbar, Typography } from '@mui/material';
+import { Autocomplete, Box, TextField, Toolbar, Typography } from '@mui/material';
 import MonthSelect from './components/MonthSelect';
 import Map from './components/Map';
 import BarChartRace from './components/BarChartRace';
 import ModeSelect from './components/ModeSelect';
 import Legend from './components/Legend';
+import Chart from './components/Chart';
 
 const App = () => {
     const api = new API();
@@ -19,7 +20,19 @@ const App = () => {
     const [mode, setMode] = useState(() => modes.NEW_CASES);
     const [selectedCountry, setSelectedCountry] = useState(() => 'Finland');
 
-    console.log(selectedCountry)
+
+
+    const countries = useMemo(
+        () => {
+            if (!dataLoaded) return [];
+            return Object.fromEntries(
+                Object.entries(Object.entries(countryData)[0][1])
+                    .map(([country, props]) => [country, props.iso2])
+            );
+        },
+        [dataLoaded]
+    );
+
 
     const mapData = useMemo(
         () => {
@@ -67,6 +80,54 @@ const App = () => {
             };
         });
     }, []);
+
+    const onChange = (_, value, __) => {
+        if (value) setSelectedCountry(value);
+    };
+
+
+    const onSetCountry = countryCode => {
+        const country = Object.entries(countries)
+            .find(([name, code]) => code === countryCode);
+
+        if (country) setSelectedCountry(country[0]);
+    };
+
+    const countryChartData = useMemo(
+        () => {
+            if (!dataLoaded) return [];
+            return [
+                {
+                    id: mode,
+                    data: months
+                        .map(month => {
+                            const { monthLabel } = month;
+                            const monthDataForCountry = countryData[monthLabel][selectedCountry];
+                            let y = 0;
+                            switch (mode) {
+                                case modes.TOTAL_CASES:
+                                    y = monthDataForCountry.totalCasesPer100k;
+                                    break;
+                                case modes.TOTAL_DEATHS:
+                                    y = monthDataForCountry.totalDeathsPer100k;
+                                    break;
+                                case modes.NEW_CASES:
+                                    y = monthDataForCountry.newCasesPer100k;
+                                    break;
+                                case modes.NEW_DEATHS:
+                                    y = monthDataForCountry.newDeathsPer100k;
+                                    break;
+                            }
+                            return {
+                                x: monthLabel,
+                                y
+                            };
+                        })
+                }
+            ];
+        },
+        [selectedCountry, dataLoaded, mode]
+    );
 
 
     return (
@@ -139,7 +200,7 @@ const App = () => {
                                 data={mapData.data}
                                 setHeight={setHeight}
                                 getColor={getColor}
-                                setSelectedCountry={setSelectedCountry}
+                                onSelectCountry={onSetCountry}
                             />
                             <Legend
                                 data={mapData.legend}
@@ -155,6 +216,32 @@ const App = () => {
                                 data={mapData.data.map(item => ({...item, title: item.countryName})).filter(item => item.population >= 5000000)}
                             />
                         </Box>
+                    </Box>
+                    <Box
+                        sx={{
+                            marginTop: 2
+                        }}
+                    >
+                        <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            options={(Object.entries(countries).map(([key, value]) => key))}
+                            sx={{ width: 300 }}
+                            renderInput={(params) => <TextField {...params} label="Country" />}
+                            value={selectedCountry}
+                            autoHighlight
+                            onChange={onChange}
+                        />
+                    </Box>
+                    <Box
+                        sx={{
+                            marginTop: 2,
+                            height: 400
+                        }}
+                    >
+                        <Chart
+                            data={countryChartData}
+                        />
                     </Box>
                 </Box>
             }
