@@ -1,7 +1,7 @@
 import API from './api/API';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import TopBar from './components/TopBar';
-import { Autocomplete, Box, TextField, Toolbar, Typography } from '@mui/material';
+import { Autocomplete, Box, CircularProgress, TextField, Toolbar, Typography } from '@mui/material';
 import MonthSelect from './components/MonthSelect';
 import Map from './components/Map';
 import BarChartRace from './components/BarChartRace';
@@ -243,6 +243,21 @@ const App = () => {
                             data={countryChartData}
                         />
                     </Box>
+                </Box>
+            }
+            {
+                !dataLoaded &&
+                <Box
+                    sx={{
+                        height: 'calc(100% - 64px)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                >
+                    <CircularProgress
+                        size={80}
+                    />
                 </Box>
             }
         </div>
