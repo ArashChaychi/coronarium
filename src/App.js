@@ -436,5 +436,5 @@ in the world. You can select the desired statistic using the buttons below (
 new or total cases/deaths, normalized to amount per 100,000 population.) The slider 
 can be used to control the time since the pandemic started, and the buttons to the right 
 of the slider can be used to see it as an animation. You can double click on the map to 
-change the zoom level.
+change the zoom level, or click on any country to view country specific data.
 `;
