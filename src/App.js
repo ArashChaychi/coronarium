@@ -1,5 +1,5 @@
 import API from './api/API';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import TopBar from './components/TopBar';
 import { Autocomplete, Box, CircularProgress, TextField, Toolbar, Typography } from '@mui/material';
 import MonthSelect from './components/MonthSelect';
@@ -19,8 +19,14 @@ const App = () => {
     const [height, setHeight] = useState(() => 400);
     const [mode, setMode] = useState(() => modes.NEW_CASES);
     const [selectedCountry, setSelectedCountry] = useState(() => 'Finland');
+    const countryChart = useRef();
 
-
+    const scrollChartIntoView = () => {
+        if (!countryChart.current) return;
+        countryChart.current.scrollIntoView({
+            behavior: "smooth",
+        });
+    };
 
     const countries = useMemo(
         () => {
@@ -83,6 +89,7 @@ const App = () => {
 
     const onChange = (_, value, __) => {
         if (value) setSelectedCountry(value);
+        scrollChartIntoView();
     };
 
 
@@ -91,6 +98,7 @@ const App = () => {
             .find(([name, code]) => code === countryCode);
 
         if (country) setSelectedCountry(country[0]);
+        scrollChartIntoView();
     };
 
     const countryChartData = useMemo(
@@ -234,6 +242,7 @@ const App = () => {
                         />
                     </Box>
                     <Box
+                        ref={countryChart}
                         sx={{
                             marginTop: 2,
                             height: 400
