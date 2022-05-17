@@ -1,11 +1,17 @@
 onmessage = ({data: {historicalData, allCountries, firstDay, today}}) => {
     const monthsSinceStart = getMonthsSinceStart(firstDay, today);
 
+
     const historicalManifest = historicalData
-        .reduce((acc, {country, timeline}) => {
-            if (!acc[country]) acc[country] = timeline;
+        .reduce((acc, {country, province, timeline}) => {
+            // console.log(country, province)
+            // console.log(timeline)
+            if (!acc[country] || !province || province === 'new south wales' || province === 'hong kong' || province === 'ontario') {
+                acc[country] = timeline;
+            }
             return acc;
         }, {});
+
 
     const countryDataAdded = monthsSinceStart
         .map((item, index, arr) => {
