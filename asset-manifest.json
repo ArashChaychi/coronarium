@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/coronarium/static/css/main.9101e56f.css",
-    "main.js": "/coronarium/static/js/main.b72441b9.js",
+    "main.js": "/coronarium/static/js/main.a555fdb9.js",
     "index.html": "/coronarium/index.html",
     "main.9101e56f.css.map": "/coronarium/static/css/main.9101e56f.css.map",
-    "main.b72441b9.js.map": "/coronarium/static/js/main.b72441b9.js.map"
+    "main.a555fdb9.js.map": "/coronarium/static/js/main.a555fdb9.js.map"
   },
   "entrypoints": [
     "static/css/main.9101e56f.css",
-    "static/js/main.b72441b9.js"
+    "static/js/main.a555fdb9.js"
   ]
 }
