@@ -78,6 +78,7 @@ const App = () => {
             ]
         ).then(([historicalData, allCountries]) => {
             const worker = new Worker('./dataAdapter.js');
+            // const worker = new Worker('./coronarium/dataAdapter.js'); // for dev
             worker.postMessage(JSON.parse(JSON.stringify({historicalData, allCountries, firstDay, today})));
             worker.onmessage = ({data: {monthsSinceStart, countryData}}) => {
                 setCountryData(countryData);
